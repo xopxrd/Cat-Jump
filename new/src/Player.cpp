@@ -5,13 +5,13 @@
 
 #include <iostream>
 
-const int SCREEN_WIDTH = 800;
+const int SCREEN_WIDTH = 400;
 const int SCREEN_HEIGHT = 640;
 
 const float gravity = 0.4f;
 const float friction = 0.2f;
 const int frameWidth = 32;
-int counter = 0;
+int FPS = 0;
 
 Player::Player(float x, float y, SDL_Texture* walk)
 :playerTex(walk)
@@ -37,6 +37,10 @@ float Player::getY(){
 	return y;
 }
 
+bool Player::isStart(){
+	return start;
+}
+
 void Player::walkFrame(){
 	if (playerRect.x >= 128)
 		playerRect.x = 0;
@@ -48,14 +52,14 @@ void Player::idleFrame(){
 }
 
 void Player::setFrameWidth(int frameWidth){
-	counter++;
-	if (counter >= 12){
-		counter = 0;
+	FPS++;
+	if (FPS >= 12){
+		FPS = 0;
 		playerRect.x += frameWidth;
 	}
 
-	else if (counter >= 5 && velocityX != 0){
-		counter = 0;
+	else if (FPS >= 5 && velocityX != 0){
+		FPS = 0;
 		playerRect.x += frameWidth;	
 	}
 }
@@ -66,14 +70,6 @@ SDL_Rect Player::getPlayerRect(){
 
 SDL_RendererFlip Player::getFlip(){
 	return flip;
-}
-
-int Player::head(){
-	return y;
-}
-
-int Player::foot(){
-	return y + 32;
 }
 
 void Player::setFlip(const Uint8* keystate){
@@ -100,7 +96,7 @@ void Player::spriteAnim(){
 	}
 
 	if (grounded && velocityX == 0){
-		setFrameWidth(32);
+		setFrameWidth(frameWidth);
 		idleFrame();
 	}
 }
@@ -108,29 +104,38 @@ void Player::spriteAnim(){
 void Player::intersect(Block& block){
 	spriteAnim();
 
-	// kejedot block
 	if (getX() + 32 > block.getX() && getX() < block.getX() + block.getWidth())
 	{
-		if (getY() < block.getY() + block.getHeight() && getY() + 32 > block.getY() && velocityY < 0)
-			velocityY *= -1;
-	}		
+		// // kejedot block
+		// if (getY() < block.getY() + block.getHeight() && getY() + 32 > block.getY() && velocityY < 0)
+		// 	velocityY *= -1;
 
-	// nepak block
-	if ((getX() + 32 > block.getX()) && (getX() < block.getX() + block.getWidth())
-	&& (getY() + 32 > block.getY()) && getY() + 32 < block.getY() + block.getHeight())
-	{
-		velocityY = 0.0f;
-		grounded = true;
-		if ((keystate[SDL_SCANCODE_UP] && grounded)){
-			velocityY = -15.0f;
-			grounded = false;
+		// nepak block
+		if (getY() + 32 > block.getY() && getY() < block.getY() && velocityY > 0)
+		{
+			grounded = true;
+			velocityY = -10.0f;
+			score++;
 		}
-	}
+	}	
+
 	else
 		grounded = false;
+
+	// gerakan block
+	if (start)
+	{
+		block.setPos(block.getX(), block.getY() + 3);
+		if (block.getY() > SCREEN_HEIGHT)
+			block.setPos(rand() % (SCREEN_WIDTH - 32) + 1, 0);
+	}
 }
 
-void Player::playerUpdate(){
+void Player::playerUpdate()
+{
+	if (score > highscore)
+		highscore = score;
+
 	keystate = SDL_GetKeyboardState(NULL);
 	setX(this->x + velocityX);
 	setY(this->y + velocityY);
@@ -158,14 +163,14 @@ void Player::playerUpdate(){
 
 	// kudu 1 scope
 	{
-		if (this->y >= SCREEN_HEIGHT - 32){
-			this->y = SCREEN_HEIGHT - 32;
+		if (!start){
 			grounded = true;
 			velocityY = 0.0f;
 		}
 
-		if ((keystate[SDL_SCANCODE_UP] && grounded)){
-			velocityY = -15.0f;
+		if ((keystate[SDL_SCANCODE_UP] && grounded && !start)){
+			start = true;
+			velocityY = -10.0f;
 			grounded = false;
 		}
 	}
@@ -190,4 +195,29 @@ void Player::playerUpdate(){
 		this->x = 0;
 	if (this->x >= SCREEN_WIDTH - 32)
 		this->x = SCREEN_WIDTH - 32;
+
+	if (start && getY() > SCREEN_HEIGHT)
+		reset();
+}
+
+void Player::reset(){
+	velocityY = 0.0f;
+	setX(0);
+	setY(SCREEN_HEIGHT - 32);
+	start = false;
+	score = 0;
+}
+
+const char* Player::getScore()
+{
+	std::string s = std::to_string(score);
+	s = "DISTANCE: " + s;
+	return s.c_str();
+}
+
+const char* Player::getHighscore()
+{
+	std::string s = std::to_string(highscore);
+	s = "BEST: " + s;
+	return s.c_str();
 }

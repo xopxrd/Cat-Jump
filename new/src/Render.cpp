@@ -1,9 +1,13 @@
 #include <iostream>
 #include "SDL.h"
 #include "SDL_image.h"
+#include "SDL_ttf.h"
 
 #include "Render.hpp"
 #include "Player.hpp"
+
+const int SCREEN_WIDTH = 400;
+const int SCREEN_HEIGHT = 640;
 
 Render::Render(const char* title, int w, int h)
 :window(NULL), renderer(NULL)
@@ -62,6 +66,64 @@ void Render::render(Block& block){
 	dst.h = src.h;
 
 	SDL_RenderCopy(renderer, block.getTex(), &src, &dst);
+}
+
+void Render::render(float p_x, float p_y, SDL_Texture* p_tex)
+{
+	SDL_Rect src;
+	src.x = 0;
+	src.y = 0;
+	SDL_QueryTexture(p_tex, NULL, NULL, &src.w, &src.h); 
+
+	SDL_Rect dst;
+	dst.x = p_x;
+	dst.y = p_y;
+	dst.w = src.w;
+	dst.h = src.h;
+
+	SDL_RenderCopy(renderer, p_tex, &src, &dst);
+}
+
+void Render::render(float p_x, float p_y, const char* p_text, TTF_Font* font, SDL_Color textColor)
+{
+	SDL_Surface* surfaceMessage = TTF_RenderText_Blended( font, p_text, textColor);
+	SDL_Texture* message = SDL_CreateTextureFromSurface(renderer, surfaceMessage);
+
+	SDL_Rect src;
+	src.x = 0;
+	src.y = 0;
+	src.w = surfaceMessage->w;
+	src.h = surfaceMessage->h; 
+
+	SDL_Rect dst;
+	dst.x = p_x;
+	dst.y = p_y;
+	dst.w = src.w;
+	dst.h = src.h;
+
+	SDL_RenderCopy(renderer, message, &src, &dst);
+	SDL_FreeSurface(surfaceMessage);
+}
+
+void Render::renderCenter(float p_x, float p_y, const char* p_text, TTF_Font* font, SDL_Color textColor)
+{
+	SDL_Surface* surfaceMessage = TTF_RenderText_Blended(font, p_text, textColor);
+	SDL_Texture* message = SDL_CreateTextureFromSurface(renderer, surfaceMessage);
+
+	SDL_Rect src;
+	src.x = 0;
+	src.y = 0;
+	src.w = surfaceMessage->w;
+	src.h = surfaceMessage->h; 
+
+	SDL_Rect dst;
+	dst.x = SCREEN_WIDTH/2 - src.w/2 + p_x;
+	dst.y = SCREEN_HEIGHT/2 - src.h/2 + p_y;
+	dst.w = src.w;
+	dst.h = src.h;
+
+	SDL_RenderCopy(renderer, message, &src, &dst);
+	SDL_FreeSurface(surfaceMessage);
 }
 
 void Render::cleanUp(){

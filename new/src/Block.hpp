@@ -15,5 +15,4 @@ public:
 	SDL_Rect getBlockRect();
 	SDL_Texture* getTex();
 	void setPos(float, float);
-	void setPos();
 };
