@@ -4,7 +4,7 @@
 #include "SDL.h"
 #include "SDL_image.h"
 #include "SDL_ttf.h"
-#include "SDL_mixer.h"
+// #include "SDL_mixer.h" 
 
 #include "Render.hpp"
 #include "Player.hpp"
@@ -15,6 +15,10 @@ const int SCREEN_HEIGHT = 640;
 
 SDL_Color white = { 255, 255, 255 };
 SDL_Color black = { 0, 0, 0 };
+
+const int NOT_PLAY = 0;
+const int PLAY = 1;
+const int DEATH = 2;
 
 int main(int argc, char *argv[])
 {	
@@ -111,12 +115,15 @@ int main(int argc, char *argv[])
 			window->render(3, 3, cat->getScore(), font32, white);
 			window->render(3, 44, cat->getHighscore(), font16, white);
 
-			// if (!cat->isStart())
-			// {
-			// 	window->render(0, 0, deathOverlay);
-			// 	window->renderCenter(0, -24, "You die...", font24, white);
-			// 	window->renderCenter(0, 12, "Click to retry", font16, white);
-			// }
+			if (cat->getCondition() == DEATH)
+			{
+				window->render(0, 0, deathOverlay);
+				window->renderCenter(0, -24, "You die...", font24, white);
+				window->renderCenter(0, 12, "Press space to retry...", font16, white);
+				if (cat->getKeystate()[SDL_SCANCODE_SPACE])
+					cat->reset();
+			}
+
 
 			window->display();
 		}
