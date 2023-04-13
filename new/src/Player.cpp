@@ -72,6 +72,12 @@ SDL_RendererFlip Player::getFlip(){
 	return flip;
 }
 
+// last added code
+const Uint8* Player::getKeystate(){
+	return keystate;
+}
+// until here
+
 void Player::setFlip(const Uint8* keystate){
 	if (keystate[SDL_SCANCODE_RIGHT])
 		flip = SDL_FLIP_NONE;
