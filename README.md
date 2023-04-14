@@ -7,5 +7,5 @@ Cat Jump is a simple endless jump game. The cat will jump if you press a up key 
 ## compiling
 
 ~~~
-g++ new/src/*.cpp -std=c++14 -Wall -ISDL2/include -LSDL2/lib -lmingw32 -lSDL2main -lSDL2 -lSDL2_image -lSDL2_ttf -o bin/release/Main
+g++ new/src/*.cpp -std=c++14 -Wall -ISDL2/include -LSDL2/lib -lmingw32 -lSDL2main -lSDL2 -lSDL2_image -lSDL2_ttf -lSDL2_mixer -o bin/release/Main
 ~~~
