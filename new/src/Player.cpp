@@ -11,6 +11,11 @@ const int SCREEN_HEIGHT = 640;
 const float gravity = 0.4f;
 const float friction = 0.2f;
 const int frameWidth = 32;
+
+const int NOT_PLAY = 0;
+const int PLAY = 1;
+const int DEATH = 2;
+
 int FPS = 0;
 
 Player::Player(float x, float y, SDL_Texture* walk)
@@ -37,8 +42,12 @@ float Player::getY(){
 	return y;
 }
 
-bool Player::isStart(){
-	return start;
+int Player::getCondition(){
+	return condition;
+}
+
+const Uint8* Player::getKeystate(){
+	return keystate;
 }
 
 void Player::walkFrame(){
@@ -71,12 +80,6 @@ SDL_Rect Player::getPlayerRect(){
 SDL_RendererFlip Player::getFlip(){
 	return flip;
 }
-
-// last added code
-const Uint8* Player::getKeystate(){
-	return keystate;
-}
-// until here
 
 void Player::setFlip(const Uint8* keystate){
 	if (keystate[SDL_SCANCODE_RIGHT])
@@ -129,9 +132,15 @@ void Player::intersect(Block& block){
 		grounded = false;
 
 	// gerakan block
-	if (start)
+	if (condition == PLAY)
 	{
-		block.setPos(block.getX(), block.getY() + 3);
+		if (score >= 50)
+			block.setPos(block.getX(), block.getY() + 5);
+		else if (score >= 20 && score < 50)
+			block.setPos(block.getX(), block.getY() + 4);
+		else
+			block.setPos(block.getX(), block.getY() + 3);
+
 		if (block.getY() > SCREEN_HEIGHT)
 			block.setPos(rand() % (SCREEN_WIDTH - 32) + 1, 0);
 	}
@@ -169,13 +178,13 @@ void Player::playerUpdate()
 
 	// kudu 1 scope
 	{
-		if (!start){
+		if (condition == NOT_PLAY){
 			grounded = true;
 			velocityY = 0.0f;
 		}
 
-		if ((keystate[SDL_SCANCODE_UP] && grounded && !start)){
-			start = true;
+		if ((keystate[SDL_SCANCODE_UP] && grounded && condition == NOT_PLAY)){
+			condition = PLAY;
 			velocityY = -10.0f;
 			grounded = false;
 		}
@@ -202,15 +211,15 @@ void Player::playerUpdate()
 	if (this->x >= SCREEN_WIDTH - 32)
 		this->x = SCREEN_WIDTH - 32;
 
-	if (start && getY() > SCREEN_HEIGHT)
-		reset();
+	if (condition == PLAY && getY() > SCREEN_HEIGHT)
+		condition = DEATH;
 }
 
 void Player::reset(){
 	velocityY = 0.0f;
 	setX(0);
 	setY(SCREEN_HEIGHT - 32);
-	start = false;
+	condition = NOT_PLAY;
 	score = 0;
 }
 
