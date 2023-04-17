@@ -13,7 +13,7 @@ private:
 	float velocityY = 0;
 	float maxSpeed = 5;
 	bool grounded;
-	bool start = false;
+	int condition = 0;
 	const Uint8* keystate;
 
 public:
@@ -23,7 +23,7 @@ public:
 	SDL_RendererFlip getFlip();
 	SDL_Rect getPlayerRect();
 	SDL_Texture* getTex();
-	bool isStart();
+	int getCondition();
 	const char* getScore();
 	const char* getHighscore();
 	const Uint8* getKeystate();
