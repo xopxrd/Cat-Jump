@@ -11,3 +11,6 @@ g++ new/src/*.cpp -std=c++14 -Wall -ISDL2/include -LSDL2/lib -lmingw32 -lSDL2mai
 ~~~
 
 dont forget to place the SDL2.dll, SDL2_image.dll, SDL2_mixer.dll and SDL2_ttf.dll with the exe file
+
+## issue
+there's a memory leak when im using SDL_Surface* in a function for displaying a score, so i decided to remove it. I still didnt know how to solve that problem
